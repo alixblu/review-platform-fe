@@ -9,6 +9,10 @@ import UserLayout from "./Layout/UserLayout";
 import LoginPage from "./Page/LoginPage";
 import ForgetPasswordPage from "./Page/ForgetPasswordPage";
 import ResetPasswordPage from "./Page/ResetPasswordPage";
+import ProfilePage  from "./Page/ProfilePage";
+import ProductDetail from "./Page/ProductDetail";
+import ReviewPage from "./Page/ReviewPage";
+import ListReviewPage from "./Page/ListReviewPage";
 
 function App() {
   return (
@@ -23,7 +27,11 @@ function App() {
 
         {/* Các trang user */}
         <Route element={<UserLayout />}>
-          <Route path="/user/home" element={<h1>User Home</h1>} />
+          <Route path="/" element={<h1>User Home</h1>} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/review" element={<ReviewPage />} />
+          <Route path="/list-review" element={<ListReviewPage />} />
         </Route>
 
         {/* Các trang admin */}
