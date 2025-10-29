@@ -10,10 +10,11 @@ import LoginPage from "./Page/LoginPage";
 import ForgetPasswordPage from "./Page/ForgetPasswordPage";
 import ResetPasswordPage from "./Page/ResetPasswordPage";
 import FeedPage from "./Page/FeedPage";
-import ProfilePage  from "./Page/ProfilePage";
+import ProfilePage from "./Page/ProfilePage";
 import ProductDetail from "./Page/ProductDetail";
 import ReviewPage from "./Page/ReviewPage";
 import ListReviewPage from "./Page/ListReviewPage";
+import BrandList from "./Page/BrandList";
 
 function App() {
   return (
@@ -29,7 +30,7 @@ function App() {
         {/* User layout */}
         <Route element={<UserLayout />}>
           <Route path="/user/home" element={<h1>User Home</h1>} />
-          <Route path="/user/feed" element={<FeedPage />} /> {/* ✅ Newsfeed */}
+          <Route path="/user/feed" element={<FeedPage />} />
           <Route path="/" element={<h1>User Home</h1>} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/product/:id" element={<ProductDetail />} />
@@ -40,6 +41,7 @@ function App() {
         {/* Admin layout */}
         <Route element={<AdminLayout />}>
           <Route path="/admin/dashboard" element={<h1>Admin Dashboard</h1>} />
+          <Route path="/admin/brands" element={<BrandList />} />
         </Route>
       </Routes>
     </Router>
