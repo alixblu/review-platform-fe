@@ -14,6 +14,7 @@ import ProfilePage  from "./Page/ProfilePage";
 import ProductDetail from "./Page/ProductDetail";
 import ReviewPage from "./Page/ReviewPage";
 import ListReviewPage from "./Page/ListReviewPage";
+import AuthCallback from "./Page/AuthCallback";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forgot-password" element={<ForgetPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
         </Route>
 
         {/* User layout */}
