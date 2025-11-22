@@ -17,9 +17,7 @@ const AdminLayout = () => {
         </ul>
       </aside>
 
-      {/* Nội dung bên phải */}
       <main className="flex-1 p-6">
-        {/* 👇 Rất quan trọng: phần này sẽ render nội dung từ các Route con */}
         <Outlet />
       </main>
     </div>

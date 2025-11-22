@@ -317,7 +317,7 @@ const MediaItem = ({ item, tall, small }) => {
             <button className="w-full py-2 bg-[#FF9090] text-white rounded-xl hover:bg-[#ff7b7b] transition">
               Chi tiết sản phẩm
             </button>
-          </div>
+          </div>  
         </div>
       )}
     </>
