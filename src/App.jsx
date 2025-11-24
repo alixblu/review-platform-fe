@@ -31,7 +31,7 @@ function App() {
         {/* User layout */}
         <Route element={<UserLayout />}>
           <Route path="/user/home" element={<h1>User Home</h1>} />
-          <Route path="/user/feed" element={<FeedPage />} /> {/* ✅ Newsfeed */}
+          <Route path="/user/feed" element={<FeedPage />} />
           <Route path="/" element={<h1>User Home</h1>} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/product/:id" element={<ProductDetail />} />

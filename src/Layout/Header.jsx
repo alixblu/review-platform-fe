@@ -1,9 +1,13 @@
+<<<<<<< Updated upstream
 export default function Header() {
   const handleLogout = () => {
     sessionStorage.removeItem("user");
     window.location.href = "http://localhost:8888/logout";
   };
 
+=======
+/*export default function Header() {
+>>>>>>> Stashed changes
   return (
     <header className="flex items-center justify-between bg-white shadow px-4 py-2 fixed top-0 left-0 right-0 z-10">
       <div className="flex items-center space-x-2">
@@ -26,4 +30,4 @@ export default function Header() {
       </div>
     </header>
   );
-}
+}*/
