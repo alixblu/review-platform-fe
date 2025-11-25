@@ -1,47 +1,23 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-// Layouts
-import AccountLayout from "./Layout/AccountLayout";
-import AdminLayout from "./Layout/AdminLayout";
-import UserLayout from "./Layout/UserLayout";
+// Layout
+import MainLayout from "./Layout/MainLayout";
 
 // Pages
-import LoginPage from "./Page/LoginPage";
-import ForgetPasswordPage from "./Page/ForgetPasswordPage";
-import ResetPasswordPage from "./Page/ResetPasswordPage";
-import FeedPage from "./Page/FeedPage";
-import ProfilePage  from "./Page/ProfilePage";
+import HomePage from "./Page/HomePage";
 import ProductDetail from "./Page/ProductDetail";
-import ReviewPage from "./Page/ReviewPage";
-import ListReviewPage from "./Page/ListReviewPage";
-import AuthCallback from "./Page/AuthCallback";
+import AddProduct from "./Page/AddProduct";
+import BrandManagement from "./Page/BrandManagement";
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Account layout */}
-        <Route element={<AccountLayout />}>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/forgot-password" element={<ForgetPasswordPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/auth/callback" element={<AuthCallback />} />
-        </Route>
-
-        {/* User layout */}
-        <Route element={<UserLayout />}>
-          <Route path="/user/home" element={<h1>User Home</h1>} />
-          <Route path="/user/feed" element={<FeedPage />} />
-          <Route path="/" element={<h1>User Home</h1>} />
-          <Route path="/profile" element={<ProfilePage />} />
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<HomePage />} />
           <Route path="/product/:id" element={<ProductDetail />} />
-          <Route path="/review" element={<ReviewPage />} />
-          <Route path="/list-review" element={<ListReviewPage />} />
-        </Route>
-
-        {/* Admin layout */}
-        <Route element={<AdminLayout />}>
-          <Route path="/admin/dashboard" element={<h1>Admin Dashboard</h1>} />
+          <Route path="/add-product" element={<AddProduct />} />
+          <Route path="/brands" element={<BrandManagement />} />
         </Route>
       </Routes>
     </Router>

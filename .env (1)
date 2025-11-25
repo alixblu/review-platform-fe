@@ -1,4 +1,0 @@
-VITE_COGNITO_DOMAIN=https://us-east-1jhi5wpbs9.auth.us-east-1.amazoncognito.com
-VITE_COGNITO_CLIENT_ID=62te3nhct6ltri9o1acf44n5b5
-VITE_BACKEND_URL=http://localhost:8888/
-#VITE_COGNITO_REDIRECT_URI=http://localhost:8080/login/oauth2/code/cognito

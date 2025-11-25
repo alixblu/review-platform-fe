@@ -1,10 +1,15 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+// Use proxy in development, direct URL in production
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 const axiosInstance = axios.create({
   baseURL: BACKEND_URL,
-  withCredentials: true,
+  withCredentials: false, // Set to false for proxy, or handle CORS properly on backend
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 axiosInstance.interceptors.request.use((config) => {
   const token = sessionStorage.getItem('token');
