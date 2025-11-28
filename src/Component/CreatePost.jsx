@@ -1,65 +1,107 @@
-import { useState, useRef } from "react";
-import { Image, Video, Tag, X } from "lucide-react";
-import TagSelector from "./TagSelector";
+import { useState, useRef, useEffect } from "react";
+import { Image, Video, Tag, X, ShoppingBag } from "lucide-react"; // Import thêm icon ShoppingBag nếu muốn
+import ProductSelector from "./ProductSelector";
 
 export default function CreatePost({ setPosts }) {
   const [content, setContent] = useState("");
-  const [media, setMedia] = useState([]); // cho phép nhiều ảnh/video
-  const [tags, setTags] = useState([]);
-  const [showTagModal, setShowTagModal] = useState(false);
+  const [media, setMedia] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showProductModal, setShowProductModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [userId, setUserId] = useState(null);
 
   const fileInputRef = useRef(null);
   const videoInputRef = useRef(null);
 
-  // Upload nhiều ảnh
-  const handleSelectImage = (e) => {
+  useEffect(() => {
+    const sub = JSON.parse(sessionStorage.getItem("user")).sub;
+    if (!sub) return;
+
+    fetch(`http://localhost:8888/api/user/acc/${sub}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.code === 100 && data.result?.id) {
+          setUserId(data.result.id);
+          sessionStorage.setItem("userDetail", JSON.stringify(data.result));
+        }
+      })
+      .catch((err) => console.error(err));
+  }, []);
+
+  const handleSelectMedia = (e, type) => {
     const files = Array.from(e.target.files);
     const newMedia = files.map((file) => ({
-      type: "image",
+      type,
+      file,
       url: URL.createObjectURL(file),
     }));
     setMedia((prev) => [...prev, ...newMedia]);
   };
 
-  // Upload nhiều video
-  const handleSelectVideo = (e) => {
-    const files = Array.from(e.target.files);
-    const newMedia = files.map((file) => ({
-      type: "video",
-      url: URL.createObjectURL(file),
-    }));
-    setMedia((prev) => [...prev, ...newMedia]);
-  };
-
-  // Xóa file media
   const handleRemoveMedia = (url) => {
     setMedia((prev) => prev.filter((m) => m.url !== url));
   };
 
-  // Đăng bài
-  const handleSubmit = () => {
+  const uploadFile = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch("http://localhost:8888/api/upload/product", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await res.json();
+    if (res.ok && data.result?.url) return data.result.url;
+    throw new Error("Upload failed");
+  };
+
+  const handleSubmit = async () => {
+    if (!userId) return alert("Đang tải thông tin người dùng, thử lại sau.");
     if (!content.trim() && media.length === 0) return;
+    setLoading(true);
 
-    const newPost = {
-      id: Date.now(),
-      name: "Ngô Trí Anh",
-      avatar: "https://i.pravatar.cc/150?img=10",
-      content,
-      media,
-      likes: 0,
-      tags,
-      comments: [],
-    };
+    try {
+      const mediaUrls = await Promise.all(media.map((m) => uploadFile(m.file)));
 
-    setPosts((prev) => [newPost, ...prev]);
-    setContent("");
-    setMedia([]);
-    setTags([]);
+      const res = await fetch("http://localhost:8888/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          productId: selectedProduct?.id || "",
+          content,
+          mediaUrls,
+        }),
+      });
+      const data = await res.json();
+
+      if (res.ok && data.result) {
+        setPosts((prev) => [
+          {
+            id: data.result.id,
+            userId: data.result.userId,
+            productId: data.result.productId,
+            content: data.result.content,
+            media: mediaUrls,
+            product: selectedProduct,
+            likes: data.result.likeCount || 0,
+          },
+          ...prev,
+        ]);
+        setContent("");
+        setMedia([]);
+        setSelectedProduct(null);
+      } else {
+        console.error("Failed to create post:", data);
+      }
+    } catch (err) {
+      console.error("Error creating post:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="bg-white p-4 rounded-xl shadow-md border border-[#FF9090]/30">
-      {/* Nội dung bài viết */}
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
@@ -67,7 +109,36 @@ export default function CreatePost({ setPosts }) {
         className="w-full p-2 border border-[#FF9090]/40 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-[#FF9090]"
       />
 
-      {/* Preview ảnh/video */}
+      {/* --- PHẦN HIỂN THỊ SẢN PHẨM ĐÃ CHỌN --- */}
+      {selectedProduct && (
+        <div className="mt-3 flex items-center gap-3 bg-[#FF9090]/10 p-2 rounded-lg border border-[#FF9090]/30 relative animate-fade-in">
+          <div className="w-12 h-12 flex-shrink-0 bg-white rounded-md overflow-hidden border border-[#FF9090]/20">
+            <img
+              src={selectedProduct.imageUrl || "/example-product.jpg"}
+              alt={selectedProduct.name}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-sm text-gray-800 truncate">
+              {selectedProduct.name}
+            </h4>
+            <div className="flex items-center gap-1 text-xs text-[#FF9090] font-medium">
+              <ShoppingBag size={12} />
+              <span>Sản phẩm được gắn thẻ</span>
+            </div>
+          </div>
+          <button
+            onClick={() => setSelectedProduct(null)}
+            className="p-1 bg-white rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 shadow-sm transition border border-gray-100"
+            title="Gỡ sản phẩm"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
+      {/* -------------------------------------- */}
+
       {media.length > 0 && (
         <div
           className={`mt-3 grid gap-2 ${
@@ -90,11 +161,7 @@ export default function CreatePost({ setPosts }) {
                   className="w-full h-60 object-cover"
                 />
               ) : (
-                <video
-                  src={m.url}
-                  controls
-                  className="w-full h-60 object-cover"
-                />
+                <video src={m.url} controls className="w-full h-60 object-cover" />
               )}
               <button
                 onClick={() => handleRemoveMedia(m.url)}
@@ -107,10 +174,8 @@ export default function CreatePost({ setPosts }) {
         </div>
       )}
 
-      {/* Các nút icon hành động */}
       <div className="flex items-center justify-between mt-3 border-t border-[#FF9090]/30 pt-3">
         <div className="flex items-center gap-4">
-          {/* Ảnh */}
           <button
             onClick={() => fileInputRef.current.click()}
             className="flex items-center gap-1 text-[#FF9090] font-medium hover:scale-105 transition"
@@ -122,11 +187,10 @@ export default function CreatePost({ setPosts }) {
             accept="image/*"
             multiple
             ref={fileInputRef}
-            onChange={handleSelectImage}
+            onChange={(e) => handleSelectMedia(e, "image")}
             hidden
           />
 
-          {/* Video */}
           <button
             onClick={() => videoInputRef.current.click()}
             className="flex items-center gap-1 text-[#FF9090] font-medium hover:scale-105 transition"
@@ -138,38 +202,47 @@ export default function CreatePost({ setPosts }) {
             accept="video/*"
             multiple
             ref={videoInputRef}
-            onChange={handleSelectVideo}
+            onChange={(e) => handleSelectMedia(e, "video")}
             hidden
           />
 
-          {/* Gắn thẻ */}
           <button
-            onClick={() => setShowTagModal(true)}
-            className="flex items-center gap-1 text-[#FF9090] font-medium hover:scale-105 transition"
+            onClick={() => setShowProductModal(true)}
+            className={`flex items-center gap-1 font-medium hover:scale-105 transition ${
+              selectedProduct ? "text-green-600" : "text-[#FF9090]"
+            }`}
           >
-            <Tag size={20} /> Gắn thẻ
+            <Tag size={20} />{" "}
+            {selectedProduct ? "Đổi sản phẩm" : "Chọn sản phẩm"}
           </button>
         </div>
 
         <button
           onClick={handleSubmit}
-          className="bg-[#FF9090] text-white px-4 py-2 rounded-md hover:bg-[#ff7b7b] transition"
+          disabled={loading}
+          className={`px-4 py-2 rounded-md text-white ${
+            loading
+              ? "bg-gray-400"
+              : "bg-[#FF9090] hover:bg-[#ff7b7b]"
+          } transition`}
         >
-          Đăng bài
+          {loading ? "Đang đăng..." : "Đăng bài"}
         </button>
       </div>
 
-      {/* Modal chọn tag */}
-      {showTagModal && (
+      {showProductModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white p-5 rounded-lg shadow-lg w-80 border border-[#FF9090]/40">
             <h3 className="text-lg font-semibold mb-3 text-[#FF9090]">
-              Gắn thẻ sản phẩm
+              Chọn sản phẩm
             </h3>
-            <TagSelector selectedTags={tags} setSelectedTags={setTags} />
+            <ProductSelector
+              selectedProduct={selectedProduct}
+              setSelectedProduct={setSelectedProduct}
+            />
             <div className="flex justify-end mt-4">
               <button
-                onClick={() => setShowTagModal(false)}
+                onClick={() => setShowProductModal(false)}
                 className="bg-[#FF9090] text-white px-3 py-1 rounded-md hover:bg-[#ff7b7b] transition"
               >
                 Xong

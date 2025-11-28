@@ -1,128 +1,89 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-
 const Profile = () => {
-  const navigate = useNavigate(); // hook navigate
-  const [fullName, setFullName] = useState("");
-  const [nickName, setNickName] = useState("");
-  const [gender, setGender] = useState("");
-  const [age, setAge] = useState("");
-const handleAgeChange = (e) => {
-    const value = e.target.value;
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
 
-    // Chỉ cho phép số nguyên dương
-    if (value === "" || /^[0-9]+$/.test(value)) {
-      setAge(value);
+  // Giả lập việc lấy dữ liệu từ API (hoặc bạn có thể truyền qua props)
+  useEffect(() => {
+    // Đây là object JSON bạn cung cấp
+    const apiResponse = {
+        "id": "47df7ef7-3b01-4126-af89-afbc29faf5fa",
+        "accId": "b418a458-2031-700a-7c5b-8ecf6ddcf29d",
+        "name": "google_102657138856070861852",
+        "age": 16,
+        "gender": "FEMALE",
+        "profilePic": null
+    };
+    setUser(apiResponse);
+  }, []);
 
-      // Kiểm tra hợp lệ
-      if (value === "") {
-        setAgeError("Age is required");
-      } else if (parseInt(value) <= 0) {
-        setAgeError("Age must be greater than 0");
-      } else if (parseInt(value) > 150) {
-        setAgeError("Age seems too high");
-      } else {
-        setAgeError(""); // hợp lệ
-      }
-    }
-  };
+  // Component con hiển thị từng dòng
+  const InfoItem = ({ label, value }) => (
+    <div className="border-b border-gray-200 pb-2">
+      <p className="text-sm text-gray-500 mb-1">{label}</p>
+      <p className="text-lg font-medium text-gray-800 break-words">
+        {value !== null && value !== undefined ? value : "Chưa cập nhật"}
+      </p>
+    </div>
+  );
+
+  // Loading state nếu chưa có dữ liệu
+  if (!user) return <div className="p-6 text-center">Loading...</div>;
+
+  // Logic xử lý ảnh đại diện: Nếu profilePic là null thì dùng ảnh mặc định
+  const avatarSrc = user.profilePic || "https://via.placeholder.com/150?text=No+Image";
+
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-4xl mx-auto bg-pink-50 rounded-lg shadow-md p-6">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <button
-            className="text-pink-400 hover:underline"
-            onClick={() => navigate(-1)} // quay lại trang trước
-          >&larr; Trở về</button>
-          <button className="bg-pink-300 text-white px-4 py-2 rounded hover:bg-pink-400">
-            Edit
-          </button>
-        </div>
-
-        {/* Profile Info */}
-        <div className="flex items-center space-x-6 mb-6">
-          <img
-            src="https://via.placeholder.com/100"
-            alt="avatar"
-            className="w-24 h-24 rounded-full object-cover"
-          />
-          <div>
-            <h2 className="text-xl font-semibold">Dương Văn A</h2>
-            <p className="text-gray-500 text-sm">alexarawles@gmail.com</p>
-          </div>
-        </div>
-
-        {/* Form */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Full Name
-            </label>
-            <input
-              type="text"
-              placeholder="Your Full Name"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Nick Name
-            </label>
-            <input
-              type="text"
-              placeholder="Your Nick Name"
-              value={nickName}
-              onChange={(e) => setNickName(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Gender
-            </label>
-            <select
-              value={gender}
-              onChange={(e) => setGender(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
+    <div className="min-h-screen bg-gray-100 p-6 flex justify-center items-center">
+      <div className="w-full max-w-2xl bg-white rounded-xl shadow-lg overflow-hidden">
+        
+        {/* --- Header & Cover --- */}
+        <div className="bg-pink-100 h-32 relative">
+            <button
+              onClick={() => navigate(-1)}
+              className="absolute top-4 left-4 bg-white/80 hover:bg-white text-gray-700 px-3 py-1 rounded shadow text-sm transition"
             >
-              <option value="">Select Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Age
-            </label>
-            <input
-              type="number"
-              placeholder="Your Age"
-              value={age}
-              onChange={handleAgeChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
-            />
-          </div>
+              &larr; Trở về
+            </button>
         </div>
 
-        {/* Email Addresses */}
-        <div>
-          <p className="font-semibold mb-2">My email Address</p>
-          <div className="flex items-center mb-2">
-            <div className="bg-blue-200 p-2 rounded-full mr-2">
-              <span role="img" aria-label="email">
-                📧
-              </span>
-            </div>
-            <span className="text-gray-700">alexarawles@gmail.com</span>
+        {/* --- Avatar & Main Name --- */}
+        <div className="px-8 pb-8">
+          <div className="relative -mt-16 mb-6 flex justify-between items-end">
+             <img
+                src={avatarSrc}
+                alt="avatar"
+                className="w-32 h-32 rounded-full border-4 border-white shadow-md object-cover bg-white"
+              />
+              <button 
+                className="bg-pink-500 hover:bg-pink-600 text-white px-6 py-2 rounded-full shadow transition"
+              >
+                Edit Profile
+              </button>
           </div>
-          <button className="mt-2 bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200">
-            + Add Email Address
-          </button>
+
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800 break-all">{user.name}</h1>
+            {/* Vì JSON không có email, tạm thời hiển thị ID hoặc ẩn đi */}
+            <p className="text-gray-400 text-xs mt-1">ID: {user.id}</p>
+          </div>
+
+          {/* --- Detailed Info Grid --- */}
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <InfoItem label="Tên hiển thị" value={user.name} />
+            <InfoItem label="Tuổi" value={user.age} />
+            
+            {/* Xử lý hiển thị Gender cho đẹp hơn (Optional) */}
+            <InfoItem 
+                label="Giới tính" 
+                value={user.gender === "FEMALE" ? "Nữ" : (user.gender === "MALE" ? "Nam" : user.gender)} 
+            />
+            
+            <InfoItem label="Account ID" value={user.accId} />
+          </div>
+
         </div>
       </div>
     </div>
