@@ -47,8 +47,8 @@ const AuthCallback = () => {
           }          
           sessionStorage.setItem("authData", JSON.stringify(authData));
 
-          console.log("✅ Login successful, redirecting to /user/home");
-          navigate("/user/home");
+          console.log("✅ Login successful, redirecting to /feed");
+          navigate("/feed");
         } else {
           throw new Error("No auth data received");
         }
