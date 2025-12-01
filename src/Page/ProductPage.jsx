@@ -6,7 +6,8 @@ export default function ProductPage() {
   const [sections, setSections] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:8000/api/products/sections/")
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8888";
+    axios.get(`${apiUrl}/api/products/sections/`)
       .then(res => setSections(res.data))
       .catch(() => {
 

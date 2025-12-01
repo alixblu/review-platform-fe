@@ -12,7 +12,8 @@ const LoginPage = () => {
     // Direct Cognito authorization URL
     const cognitoDomain = import.meta.env.VITE_COGNITO_DOMAIN;
     const clientId = import.meta.env.VITE_COGNITO_CLIENT_ID;
-    const redirectUri = encodeURIComponent('http://localhost:3000/auth/callback');
+    const appUrl = import.meta.env.VITE_APP_URL || 'http://localhost:3000';
+    const redirectUri = encodeURIComponent(`${appUrl}/auth/callback`);
     const authUrl = `${cognitoDomain}/oauth2/authorize?client_id=${clientId}&response_type=code&scope=email+openid+phone&redirect_uri=${redirectUri}`;
     window.location.href = authUrl;
   };

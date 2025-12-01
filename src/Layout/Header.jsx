@@ -1,7 +1,8 @@
 export default function Header() {
   const handleLogout = () => {
     sessionStorage.removeItem("user");
-    window.location.href = "http://localhost:8888/logout";
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8888";
+    window.location.href = `${apiUrl}/logout`;
   };
 
   return (

@@ -23,7 +23,8 @@ const AuthCallback = () => {
           return;
         }
 
-        const redirectUri = "http://localhost:3000/auth/callback";
+        const appUrl = import.meta.env.VITE_APP_URL || "http://localhost:3000";
+        const redirectUri = `${appUrl}/auth/callback`;
         const { data } = await axios.post(
           "/api/auth/exchange",
           { code, redirectUri },
