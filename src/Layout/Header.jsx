@@ -3,8 +3,15 @@ import { Link } from 'react-router-dom'; // 1. Import Link
 
 export default function Header() {
   const handleLogout = () => {
+    // Clear session storage
     sessionStorage.removeItem("user");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("accessToken");
+    
+    // Call logout API
     const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8888";
+    
+    // Redirect to logout endpoint which will redirect back to login
     window.location.href = `${apiUrl}/logout`;
   };
 

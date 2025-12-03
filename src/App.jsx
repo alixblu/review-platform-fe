@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 // Layouts
 import AccountLayout from "./Layout/AccountLayout";
@@ -17,10 +17,16 @@ import ListReviewPage from "./Page/ListReviewPage";
 import AuthCallback from "./Page/AuthCallback";
 import ProductPage from "./Page/ProductPage";
 
+// Components
+import FloatingChat from "./Component/FloatingChat";
+
 function App() {
   return (
     <Router>
       <Routes>
+        {/* Default route - redirect to login */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+
         {/* Account layout */}
         <Route element={<AccountLayout />}>
           <Route path="/login" element={<LoginPage />} />
@@ -44,6 +50,9 @@ function App() {
           <Route path="/admin/dashboard" element={<h1>Admin Dashboard</h1>} />
         </Route>
       </Routes>
+      
+      {/* Floating Chat - Available on all pages */}
+      <FloatingChat />
     </Router>
   );
 }
