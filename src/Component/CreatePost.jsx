@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Image, Video, Tag, X, ShoppingBag } from "lucide-react"; // Import thêm icon ShoppingBag nếu muốn
+import { Image, Video, Tag, X, ShoppingBag } from "lucide-react";
 import ProductSelector from "./ProductSelector";
 
 export default function CreatePost({ setPosts }) {
@@ -13,14 +13,15 @@ export default function CreatePost({ setPosts }) {
   const fileInputRef = useRef(null);
   const videoInputRef = useRef(null);
 
+  // Lấy userId từ session
   useEffect(() => {
-    const sub = JSON.parse(sessionStorage.getItem("user")).sub;
+    const sub = JSON.parse(sessionStorage.getItem("user"))?.sub;
     if (!sub) return;
 
     fetch(`http://localhost:8888/api/user/acc/${sub}`)
       .then((res) => res.json())
       .then((data) => {
-        if (data.code === 100 && data.result?.id) {
+        if (data.result?.id) {
           setUserId(data.result.id);
           sessionStorage.setItem("userDetail", JSON.stringify(data.result));
         }
@@ -28,6 +29,7 @@ export default function CreatePost({ setPosts }) {
       .catch((err) => console.error(err));
   }, []);
 
+  // Chọn media
   const handleSelectMedia = (e, type) => {
     const files = Array.from(e.target.files);
     const newMedia = files.map((file) => ({
@@ -60,8 +62,10 @@ export default function CreatePost({ setPosts }) {
     setLoading(true);
 
     try {
+      // Upload media lên server
       const mediaUrls = await Promise.all(media.map((m) => uploadFile(m.file)));
 
+      // Tạo post
       const res = await fetch("http://localhost:8888/api/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -75,18 +79,33 @@ export default function CreatePost({ setPosts }) {
       const data = await res.json();
 
       if (res.ok && data.result) {
-        setPosts((prev) => [
-          {
-            id: data.result.id,
-            userId: data.result.userId,
-            productId: data.result.productId,
-            content: data.result.content,
-            media: mediaUrls,
-            product: selectedProduct,
-            likes: data.result.likeCount || 0,
-          },
-          ...prev,
-        ]);
+        const newPost = data.result;
+
+        // Format giống Post.jsx
+        const formattedPost = {
+          id: newPost.id,
+          userId: newPost.userId,
+          name: "User " + newPost.userId.substring(0, 6),
+          avatar: `https://i.pravatar.cc/150?u=${newPost.userId}`,
+          content: newPost.content,
+          createdAt: newPost.createAt,
+          media: Array.isArray(newPost.mediaUrls)
+            ? newPost.mediaUrls.map((url) => ({ type: "image", url }))
+            : [],
+          likes: newPost.likeCount || 0,
+          comments: [],
+          tags: [],
+          product: selectedProduct
+            ? {
+                id: selectedProduct.id,
+                name: selectedProduct.name,
+                image: selectedProduct.imageUrl,
+              }
+            : null,
+          status: newPost.status,
+        };
+
+        setPosts((prev) => [formattedPost, ...prev]);
         setContent("");
         setMedia([]);
         setSelectedProduct(null);
@@ -109,9 +128,9 @@ export default function CreatePost({ setPosts }) {
         className="w-full p-2 border border-[#FF9090]/40 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-[#FF9090]"
       />
 
-      {/* --- PHẦN HIỂN THỊ SẢN PHẨM ĐÃ CHỌN --- */}
+      {/* Hiển thị sản phẩm đã chọn */}
       {selectedProduct && (
-        <div className="mt-3 flex items-center gap-3 bg-[#FF9090]/10 p-2 rounded-lg border border-[#FF9090]/30 relative animate-fade-in">
+        <div className="mt-3 flex items-center gap-3 bg-[#FF9090]/10 p-2 rounded-lg border border-[#FF9090]/30">
           <div className="w-12 h-12 flex-shrink-0 bg-white rounded-md overflow-hidden border border-[#FF9090]/20">
             <img
               src={selectedProduct.imageUrl || "/example-product.jpg"}
@@ -123,10 +142,6 @@ export default function CreatePost({ setPosts }) {
             <h4 className="font-semibold text-sm text-gray-800 truncate">
               {selectedProduct.name}
             </h4>
-            <div className="flex items-center gap-1 text-xs text-[#FF9090] font-medium">
-              <ShoppingBag size={12} />
-              <span>Sản phẩm được gắn thẻ</span>
-            </div>
           </div>
           <button
             onClick={() => setSelectedProduct(null)}
@@ -137,16 +152,12 @@ export default function CreatePost({ setPosts }) {
           </button>
         </div>
       )}
-      {/* -------------------------------------- */}
 
+      {/* Hiển thị media */}
       {media.length > 0 && (
         <div
           className={`mt-3 grid gap-2 ${
-            media.length === 1
-              ? "grid-cols-1"
-              : media.length === 2
-              ? "grid-cols-2"
-              : "grid-cols-3"
+            media.length === 1 ? "grid-cols-1" : media.length === 2 ? "grid-cols-2" : "grid-cols-3"
           }`}
         >
           {media.map((m, idx) => (
@@ -155,11 +166,7 @@ export default function CreatePost({ setPosts }) {
               className="relative rounded-lg overflow-hidden border border-[#FF9090]/40"
             >
               {m.type === "image" ? (
-                <img
-                  src={m.url}
-                  alt={`media-${idx}`}
-                  className="w-full h-60 object-cover"
-                />
+                <img src={m.url} alt={`media-${idx}`} className="w-full h-60 object-cover" />
               ) : (
                 <video src={m.url} controls className="w-full h-60 object-cover" />
               )}
@@ -212,8 +219,7 @@ export default function CreatePost({ setPosts }) {
               selectedProduct ? "text-green-600" : "text-[#FF9090]"
             }`}
           >
-            <Tag size={20} />{" "}
-            {selectedProduct ? "Đổi sản phẩm" : "Chọn sản phẩm"}
+            <Tag size={20} /> {selectedProduct ? "Đổi sản phẩm" : "Chọn sản phẩm"}
           </button>
         </div>
 
@@ -221,9 +227,7 @@ export default function CreatePost({ setPosts }) {
           onClick={handleSubmit}
           disabled={loading}
           className={`px-4 py-2 rounded-md text-white ${
-            loading
-              ? "bg-gray-400"
-              : "bg-[#FF9090] hover:bg-[#ff7b7b]"
+            loading ? "bg-gray-400" : "bg-[#FF9090] hover:bg-[#ff7b7b]"
           } transition`}
         >
           {loading ? "Đang đăng..." : "Đăng bài"}
@@ -233,9 +237,7 @@ export default function CreatePost({ setPosts }) {
       {showProductModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white p-5 rounded-lg shadow-lg w-80 border border-[#FF9090]/40">
-            <h3 className="text-lg font-semibold mb-3 text-[#FF9090]">
-              Chọn sản phẩm
-            </h3>
+            <h3 className="text-lg font-semibold mb-3 text-[#FF9090]">Chọn sản phẩm</h3>
             <ProductSelector
               selectedProduct={selectedProduct}
               setSelectedProduct={setSelectedProduct}

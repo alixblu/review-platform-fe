@@ -17,6 +17,9 @@ import ListReviewPage from "./Page/ListReviewPage";
 import AuthCallback from "./Page/AuthCallback";
 import ProductPage from "./Page/ProductPage";
 
+import AdminProductPage from "./Page/AdminProductPage";
+import AdminProductEdit from "./Page/AdminProductEdit";
+import AdminProductCreate from "./Page/AdminProductCreate";
 function App() {
   return (
     <Router>
@@ -42,6 +45,9 @@ function App() {
         {/* Admin layout */}
         <Route element={<AdminLayout />}>
           <Route path="/admin/dashboard" element={<h1>Admin Dashboard</h1>} />
+          <Route path="/admin/product" element={<AdminProductPage />} />
+          <Route path="/admin/product/new" element={<AdminProductCreate />} />
+          <Route path="/admin/product/edit/:productId" element={<AdminProductEdit />} />
         </Route>
       </Routes>
     </Router>
