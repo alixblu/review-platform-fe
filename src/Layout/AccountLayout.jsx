@@ -4,10 +4,7 @@ import { Outlet } from "react-router-dom";
 function AccountLayout() {
   return (
       <div className="bg-gray-100 min-h-screen">
-        {/* <Header /> */}
-        <div className="pt-16">
           <Outlet />
-        </div>
       </div>
   );
 }

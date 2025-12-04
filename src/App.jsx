@@ -32,7 +32,8 @@ function App() {
 
         {/* Account layout */}
         <Route element={<AccountLayout />}>
-          <Route path="/login" element={<LoginPage />} />
+          <Route index element={<LoginPage />} />          
+          <Route path="login" element={<LoginPage />} />
           <Route path="/forgot-password" element={<ForgetPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/auth/callback" element={<AuthCallback />} />

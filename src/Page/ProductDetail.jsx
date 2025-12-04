@@ -142,88 +142,97 @@ const ProductPage = () => {
   };
 
   const handleSubmitReview = async () => {
-    if (!newReview.comment.trim()) {
-      alert("Vui lòng nhập nội dung đánh giá");
+  if (!newReview.comment.trim()) {
+    alert("Vui lòng nhập nội dung đánh giá");
+    return;
+  }
+
+  setIsSubmitting(true);
+  try {
+    const token = sessionStorage.getItem("token") || 
+                  localStorage.getItem("token") || 
+                  localStorage.getItem("access_token");
+
+    if (!token) {
+      alert("Vui lòng đăng nhập để đánh giá!");
+      setIsSubmitting(false);
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      // Get token from sessionStorage (where it's stored after login)
-      const token = sessionStorage.getItem("token") || 
-                    localStorage.getItem("token") || 
-                    localStorage.getItem("access_token");
-      
-      console.log("Token found:", token ? "Yes" : "No");
-      console.log("Token value:", token ? token.substring(0, 20) + "..." : "null");
-      
-      if (!token) {
-        alert("Vui lòng đăng nhập để đánh giá!");
-        setIsSubmitting(false);
-        return;
-      }
+    const userDataStr = sessionStorage.getItem("user") || sessionStorage.getItem("authData");
+    let userId = null;
+    let username = null;
 
-      // Get user info from sessionStorage
-      const userDataStr = sessionStorage.getItem("user") || sessionStorage.getItem("authData");
-      let userId = null;
-      let username = null;
-      
-      if (userDataStr) {
-        try {
-          const userData = JSON.parse(userDataStr);
-          userId = userData.id || userData.userId || userData.sub;
-          username = userData.username || userData.email;
-          console.log("User ID:", userId);
-          console.log("Username:", username);
-        } catch (e) {
-          console.error("Failed to parse user data:", e);
-        }
-      }
-      
-      if (!userId) {
-        alert("Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại!");
-        setIsSubmitting(false);
-        return;
-      }
-
-      const response = await axios.post(
-        `${apiUrl}/api/review`,
-        {
-          userId: userId,
-          productId: id,
-          rating: newReview.rating,
-          description: newReview.comment,
-          imgUrl: newReview.image
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      console.log("Review submitted successfully:", response);
-
-      // Refresh reviews and user names
-      const res = await axios.get(`${apiUrl}/api/review/product/${id}`);
-      const reviewData = res.data?.result || [];
-      setReviews(reviewData);
-      
-      // Add current user to userNames cache
-      if (username) {
-        setUserNames(prev => ({ ...prev, [userId]: username }));
-      }
-      
-      setNewReview({ rating: 5, comment: "", image: null });
-      setImagePreview(null);
-      alert("Đánh giá thành công!");
-    } catch (err) {
-      console.error("Lỗi khi gửi review:", err);
-      console.error("Error response:", err.response);
-      console.error("Error data:", err.response?.data);
-      alert(`Không thể gửi đánh giá: ${err.response?.data?.message || err.message}`);
-    } finally {
-      setIsSubmitting(false);
+    if (userDataStr) {
+      const userData = JSON.parse(userDataStr);
+      userId = userData.id || userData.userId || userData.sub;
+      username = userData.username || userData.email;
     }
-  };
+
+    if (!userId) {
+      alert("Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại!");
+      setIsSubmitting(false);
+      return;
+    }
+
+    // 1️⃣ Gửi review
+    await axios.post(
+      `${apiUrl}/api/review`,
+      {
+        userId: userId,
+        productId: id,
+        rating: newReview.rating,
+        description: newReview.comment,
+        imgUrl: newReview.image
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    // 2️⃣ Fetch lại reviews
+    const res = await axios.get(`${apiUrl}/api/review/product/${id}`);
+    const reviewData = res.data?.result || [];
+    setReviews(reviewData);
+
+    // 3️⃣ Tính lại rating trung bình
+    const total = reviewData.reduce((sum, r) => sum + r.rating, 0);
+    const avgRating = reviewData.length > 0 ? total / reviewData.length : 0;
+
+    console.log("New average rating:", avgRating);
+
+    // 4️⃣ Gọi API cập nhật product rating
+    await axios.put(
+      `${apiUrl}/api/product/${id}/rating`,
+      { rating: avgRating },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    // 5️⃣ Reload product info để cập nhật giao diện rating
+    const productRes = await axios.get(`${apiUrl}/api/product/${id}`);
+    setProduct(productRes.data?.result);
+
+    // Add current user to cache
+    if (username) {
+      setUserNames(prev => ({ ...prev, [userId]: username }));
+    }
+
+    // 6️⃣ Reset form
+    setNewReview({ rating: 5, comment: "", image: null });
+    setImagePreview(null);
+
+    alert("Đánh giá thành công!");
+
+  } catch (err) {
+    console.error("Lỗi khi gửi review:", err);
+    alert(`Không thể gửi đánh giá: ${err.response?.data?.message || err.message}`);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   if (!product) {
     return (

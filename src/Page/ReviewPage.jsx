@@ -12,7 +12,7 @@ export default function ReviewPage() {
     profile_pic: "https://via.placeholder.com/80",
     account: {
       id: "6b812d93-91f9-4c98-bf91-d5a37c56a912",
-      email: "duongvana@gmail.com",
+      email: "duongvana@g0.mail.com",
       username: "duongvana",
       role: "customer",
       status: "active",

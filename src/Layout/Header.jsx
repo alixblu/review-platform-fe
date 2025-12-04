@@ -26,7 +26,7 @@ export default function Header() {
       <div className="flex items-center space-x-3">
         <Link to="/feed">
           <img
-            src="/logo192.png"
+            src="login_poster.webp"
             alt="Logo"
             className="w-10 h-10 rounded-full cursor-pointer hover:opacity-80 transition"
           />
@@ -50,9 +50,9 @@ export default function Header() {
         <Link className={navLink} to="/profile">
           PROFILE
         </Link>
-        <Link className={navLink} to="/reviews">
+        {/* <Link className={navLink} to="/reviews">
           REVIEWS
-        </Link>
+        </Link> */}
 
         {/* ADMIN DROPDOWN */}
         <div
