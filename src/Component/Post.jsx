@@ -9,6 +9,21 @@ export default function Post({ post }) {
   const [showModal, setShowModal] = useState(false);
   const [commentText, setCommentText] = useState("");
   const commentInputRef = useRef(null);
+const [product, setProduct] = useState(null);
+
+useEffect(() => {
+    console.log("Post productId:", post.productId);
+  if (!post.productId) return;
+
+  axios
+    .get(`http://localhost:8888/api/product/${post.productId}`)
+    .then((res) => {
+      if (res.data?.result) {
+        setProduct(res.data.result);
+      }
+    })
+    .catch((err) => console.error("Lỗi tải product:", err));
+}, [post.productId]);
 
   useEffect(() => {
     if (showModal && commentInputRef.current) {
@@ -153,16 +168,19 @@ export default function Post({ post }) {
         </div>
 
         {/* Link sản phẩm đã gắn thẻ */}
-        {post.product && (
-          <div className="mb-2">
-            <a
-              href={`/product/${post.product.id}`}
-              className="text-[#FF9090] font-medium hover:underline"
-            >
-              {post.product.name}
-            </a>
-          </div>
-        )}
+        {product && (
+  <div className="mb-2 flex items-center gap-2">
+    <Tag size={16} className="text-[#FF9090]" />
+
+    <a
+      href={`/product/${product.id}`}
+      className="text-[#FF9090] font-medium hover:underline"
+    >
+      {product.name}
+    </a>
+  </div>
+)}
+
 
         {/* Nội dung */}
         <p className="text-gray-800 mb-3 whitespace-pre-line">{post.content}</p>
