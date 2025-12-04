@@ -48,8 +48,8 @@ export default function ProductPage() {
           <button
             className={
               filterCategory === "all"
-                ? "bg-pink-500 text-white px-3 py-1 rounded-full"
-                : "border px-3 py-1 rounded-full"
+                ? "bg-[#FF9090] text-white px-3 py-1 rounded-full"
+                : "border px-3 py-1 rounded-full hover:border-[#FF9090]"
             }
             onClick={() => setFilterCategory("all")}
           >
@@ -60,8 +60,8 @@ export default function ProductPage() {
               key={cat}
               className={
                 filterCategory === cat
-                  ? "bg-pink-500 text-white px-3 py-1 rounded-full"
-                  : "border px-3 py-1 rounded-full"
+                  ? "bg-[#FF9090] text-white px-3 py-1 rounded-full"
+                  : "border px-3 py-1 rounded-full hover:border-[#FF9090]"
               }
               onClick={() => setFilterCategory(cat)}
             >
